@@ -20,12 +20,12 @@ func (suite *ProductRepositoryTestSuite) SetupTest() {
 		suite.T().Fatal(err)
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS products (id_product text PRIMARY KEY NOT NULL,description text, price DECIMAL(10,2));")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS products (id_product text PRIMARY KEY NOT NULL,description text, price DECIMAL(10,2), width DECIMAL(10,2), height DECIMAL(10,2), length DECIMAL(10,2), weight DECIMAL(10,2));")
 	if err != nil {
 		suite.T().Fatal(err)
 	}
 
-	_, err = db.Exec("INSERT INTO products (id_product, description, price) VALUES ('1', 'A', 1000);")
+	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (1, 'A', 1000, 100, 30, 10, 3);")
 	if err != nil {
 		suite.T().Fatal(err)
 	}

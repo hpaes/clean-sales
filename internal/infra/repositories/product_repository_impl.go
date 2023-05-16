@@ -23,7 +23,7 @@ func (p *ProductRepositoryImpl) GetProduct(id string) (*entities.Product, error)
 
 	var product entities.Product
 
-	err = stmt.QueryRow(id).Scan(&product.IdProduct, &product.Description, &product.Price)
+	err = stmt.QueryRow(id).Scan(&product.IdProduct, &product.Description, &product.Price, &product.Width, &product.Height, &product.Length, &product.Weight)
 	if err != nil {
 		return nil, err
 	}
