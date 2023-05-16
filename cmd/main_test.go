@@ -32,11 +32,64 @@ var (
 		Coupon: "CUPOM10",
 	}
 
+	negativeItemQuantity = dtos.CheckoutInputDto{
+		Cpf: "029.496.970-54",
+		Items: []dtos.Item{
+			{IdProduct: "1", Quantity: -1},
+			{IdProduct: "2", Quantity: 1},
+			{IdProduct: "3", Quantity: 1},
+		},
+	}
+
+	duplicatedItem = dtos.CheckoutInputDto{
+		Cpf: "029.496.970-54",
+		Items: []dtos.Item{
+			{IdProduct: "1", Quantity: 1},
+			{IdProduct: "1", Quantity: 1},
+		},
+	}
+
 	invalidInput = dtos.CheckoutInputDto{
 		Cpf:   "029.496.970-53",
 		Items: []dtos.Item{},
 	}
 )
+
+func TestGivenDuplicatedItems_ThenShouldNotCreateOrder(t *testing.T) {
+	bodyReq, err := json.Marshal(duplicatedItem)
+	assert.NoError(t, err)
+	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
+	assert.NoError(t, err)
+
+	res, err := http.DefaultClient.Do(req)
+	assert.NoError(t, err)
+	defer res.Body.Close()
+	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+
+	bodyRes, err := io.ReadAll(res.Body)
+	assert.NoError(t, err)
+
+	body := string(bodyRes)
+	assert.Equal(t, "product duplicated", strings.TrimSuffix(body, "\n"))
+}
+
+func TestGivenNegativeItemQuantity_ThenShouldNotCreateOrder(t *testing.T) {
+	bodyReq, err := json.Marshal(negativeItemQuantity)
+	assert.NoError(t, err)
+	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
+	assert.NoError(t, err)
+
+	res, err := http.DefaultClient.Do(req)
+	assert.NoError(t, err)
+	defer res.Body.Close()
+	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+
+	bodyRes, err := io.ReadAll(res.Body)
+	assert.NoError(t, err)
+
+	body := string(bodyRes)
+	assert.Equal(t, "invalid quantity", strings.TrimSuffix(body, "\n"))
+}
 
 func TestGivenInvalidCPF_ThenShouldNotCreateOrder(t *testing.T) {
 

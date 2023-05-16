@@ -51,14 +51,32 @@ func main() {
 			productRepository := repositories.NewProductRepositoryImpl(db)
 			couponRepository := repositories.NewCouponRepositoryImpl(db)
 
+			var checkDuplicate []string
+
 			if (len(input.Items)) > 0 {
 				for _, item := range input.Items {
+					if item.Quantity < 0 {
+						w.WriteHeader(http.StatusBadRequest)
+						w.Write([]byte("invalid quantity"))
+						return
+					}
+
 					product, err := productRepository.GetProduct(item.IdProduct)
 					if err != nil {
 						w.WriteHeader(http.StatusBadRequest)
 						w.Write([]byte(err.Error()))
 						return
 					}
+
+					for _, v := range checkDuplicate {
+						if v == product.IdProduct {
+							w.WriteHeader(http.StatusBadRequest)
+							w.Write([]byte("product duplicated"))
+							return
+						}
+					}
+
+					checkDuplicate = append(checkDuplicate, product.IdProduct)
 					output.Total += product.Price * float64(item.Quantity)
 				}
 			}
@@ -87,8 +105,7 @@ func prepDB(db *sql.DB) error {
 		return err
 	}
 
-	// _, err = db.Exec("CREATE TABLE IF NOT EXISTS products (id_product text PRIMARY KEY NOT NULL,description text, price DECIMAL(10,2), width DECIMAL(10,2), height DECIMAL(10,2), length DECIMAL(10,2), weight DECIMAL(10,2));")
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS products (id_product text PRIMARY KEY NOT NULL,description text, price DECIMAL(10,2));")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS products (id_product text PRIMARY KEY NOT NULL,description text, price DECIMAL(10,2), width DECIMAL(10,2), height DECIMAL(10,2), length DECIMAL(10,2), weight DECIMAL(10,2));")
 	if err != nil {
 		return err
 	}
@@ -103,30 +120,26 @@ func prepDB(db *sql.DB) error {
 	// 	return err
 	// }
 
-	// _, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (1, 'A', 1000, 100, 30, 10, 3);")
-	_, err = db.Exec("INSERT INTO products (id_product, description, price) VALUES (1, 'A', 1000);")
+	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (1, 'A', 1000, 100, 30, 10, 3);")
 	if err != nil {
 		return err
 	}
-	// _, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (2, 'B', 5000, 50, 50, 50, 22);")
-	_, err = db.Exec("INSERT INTO products (id_product, description, price) VALUES (2, 'B', 5000);")
+	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (2, 'B', 5000, 50, 50, 50, 22);")
 	if err != nil {
 		return err
 	}
-
-	// _, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (3, 'C', 30, 10, 10, 10, 0.9);")
-	_, err = db.Exec("INSERT INTO products (id_product, description, price) VALUES (3, 'C', 30);")
+	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (3, 'C', 30, 10, 10, 10, 0.9);")
 	if err != nil {
 		return err
 	}
-	// _, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (4, 'D', 1000, -100, 30, 10, 3.0);")
-	// if err != nil {
-	// 	return err
-	// }
-	// _, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (5, 'E', 1000, 100, 30, 10, -3);")
-	// if err != nil {
-	// 	return err
-	// }
+	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (4, 'D', 1000, -100, 30, 10, 3.0);")
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (5, 'E', 1000, 100, 30, 10, -3);")
+	if err != nil {
+		return err
+	}
 
 	validDate := time.Now().AddDate(1, 0, 0).Format("2006-01-02")
 	invalidDate := time.Now().AddDate(-1, 0, 0).Format("2006-01-02")
