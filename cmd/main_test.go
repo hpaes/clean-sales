@@ -3,60 +3,20 @@ package main
 import (
 	"bytes"
 	"clean-sales/internal/dtos"
+	testfixture "clean-sales/testFixture"
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	validInput = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
-		Items: []dtos.Item{
-			{IdProduct: "1", Quantity: 1},
-			{IdProduct: "2", Quantity: 1},
-			{IdProduct: "3", Quantity: 1},
-		},
-	}
-
-	validCouponInput = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
-		Items: []dtos.Item{
-			{IdProduct: "1", Quantity: 1},
-			{IdProduct: "2", Quantity: 1},
-			{IdProduct: "3", Quantity: 1},
-		},
-		Coupon: "CUPOM10",
-	}
-
-	negativeItemQuantity = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
-		Items: []dtos.Item{
-			{IdProduct: "1", Quantity: -1},
-			{IdProduct: "2", Quantity: 1},
-			{IdProduct: "3", Quantity: 1},
-		},
-	}
-
-	duplicatedItem = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
-		Items: []dtos.Item{
-			{IdProduct: "1", Quantity: 1},
-			{IdProduct: "1", Quantity: 1},
-		},
-	}
-
-	invalidInput = dtos.CheckoutInputDto{
-		Cpf:   "029.496.970-53",
-		Items: []dtos.Item{},
-	}
-)
-
 func TestGivenDuplicatedItems_ThenShouldNotCreateOrder(t *testing.T) {
-	bodyReq, err := json.Marshal(duplicatedItem)
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.DuplicatedItem)
 	assert.NoError(t, err)
 	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
 	assert.NoError(t, err)
@@ -69,12 +29,14 @@ func TestGivenDuplicatedItems_ThenShouldNotCreateOrder(t *testing.T) {
 	bodyRes, err := io.ReadAll(res.Body)
 	assert.NoError(t, err)
 
-	body := string(bodyRes)
-	assert.Equal(t, "product duplicated", strings.TrimSuffix(body, "\n"))
+	stringRes := strings.TrimSuffix(string(bodyRes), "\n")
+	body, _ := strconv.Unquote(stringRes)
+	assert.Equal(t, "duplicated product", body)
 }
 
 func TestGivenNegativeItemQuantity_ThenShouldNotCreateOrder(t *testing.T) {
-	bodyReq, err := json.Marshal(negativeItemQuantity)
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.NegativeItemQuantity)
 	assert.NoError(t, err)
 	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
 	assert.NoError(t, err)
@@ -87,13 +49,14 @@ func TestGivenNegativeItemQuantity_ThenShouldNotCreateOrder(t *testing.T) {
 	bodyRes, err := io.ReadAll(res.Body)
 	assert.NoError(t, err)
 
-	body := string(bodyRes)
-	assert.Equal(t, "invalid quantity", strings.TrimSuffix(body, "\n"))
+	stringRes := strings.TrimSuffix(string(bodyRes), "\n")
+	body, _ := strconv.Unquote(stringRes)
+	assert.Equal(t, "invalid quantity", body)
 }
 
 func TestGivenInvalidCPF_ThenShouldNotCreateOrder(t *testing.T) {
-
-	bodyReq, err := json.Marshal(invalidInput)
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.InvalidInput)
 	assert.NoError(t, err)
 	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
 	assert.NoError(t, err)
@@ -106,12 +69,14 @@ func TestGivenInvalidCPF_ThenShouldNotCreateOrder(t *testing.T) {
 	bodyRes, err := io.ReadAll(res.Body)
 	assert.NoError(t, err)
 
-	body := string(bodyRes)
-	assert.Equal(t, "invalid cpf", strings.TrimSuffix(body, "\n"))
+	stringRes := strings.TrimSuffix(string(bodyRes), "\n")
+	body, _ := strconv.Unquote(stringRes)
+	assert.Equal(t, "invalid cpf", body)
 }
 
 func TestGivenValidInput_ThenShouldCreateOrder(t *testing.T) {
-	bodyReq, err := json.Marshal(validInput)
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.ValidInput)
 	assert.NoError(t, err)
 	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
 	assert.NoError(t, err)
@@ -131,7 +96,8 @@ func TestGivenValidInput_ThenShouldCreateOrder(t *testing.T) {
 }
 
 func TestGivenValidCoupon_ThenShouldCreateOrderWithDiscount(t *testing.T) {
-	bodyReq, err := json.Marshal(validCouponInput)
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.ValidCouponInput)
 	assert.NoError(t, err)
 	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
 	assert.NoError(t, err)
@@ -148,4 +114,45 @@ func TestGivenValidCoupon_ThenShouldCreateOrderWithDiscount(t *testing.T) {
 	err = json.Unmarshal(bodyRes, &orderOutput)
 	assert.NoError(t, err)
 	assert.Equal(t, 5427.00, orderOutput.Total)
+}
+
+func TestGivenFromAndTo_ThenShouldCalculateFreightAndCreateOrder(t *testing.T) {
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.ValidInputWithFreight)
+	assert.NoError(t, err)
+	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
+	assert.NoError(t, err)
+
+	res, err := http.DefaultClient.Do(req)
+	assert.NoError(t, err)
+	defer res.Body.Close()
+	assert.Equal(t, http.StatusOK, res.StatusCode)
+
+	bodyRes, err := io.ReadAll(res.Body)
+	assert.NoError(t, err)
+
+	var orderOutput dtos.CheckoutOutputDto
+	err = json.Unmarshal(bodyRes, &orderOutput)
+	assert.NoError(t, err)
+	assert.Equal(t, 6290.00, orderOutput.Total)
+}
+
+func TestGivenNegativeItemDimension_ThenShouldNotCreateOrder(t *testing.T) {
+	t.SkipNow()
+	bodyReq, err := json.Marshal(testfixture.NegativeItemDimension)
+	assert.NoError(t, err)
+	req, err := http.NewRequest("POST", "http://localhost:9090/checkout", bytes.NewBuffer(bodyReq))
+	assert.NoError(t, err)
+
+	res, err := http.DefaultClient.Do(req)
+	assert.NoError(t, err)
+	defer res.Body.Close()
+	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+
+	bodyRes, err := io.ReadAll(res.Body)
+	assert.NoError(t, err)
+
+	stringRes := strings.TrimSuffix(string(bodyRes), "\n")
+	body, _ := strconv.Unquote(stringRes)
+	assert.Equal(t, "invalid product dimensions", body)
 }

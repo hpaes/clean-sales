@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"clean-sales/internal/entities"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,7 +19,7 @@ func TestGivenValidCPF_ShoulReturnCPF(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			cpf, err := entities.NewCPF(c.cpf)
+			cpf, err := NewCPF(c.cpf)
 			assert.Nil(t, err)
 			assert.Equal(t, c.cpf, cpf.Value)
 		})
@@ -40,7 +39,7 @@ func TestGivenCPFWithAllDigitsEqual_ThenShouldThrowError(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			err := entities.Validate(c.cpf)
+			err := Validate(c.cpf)
 			assert.NotNil(t, err)
 			assert.EqualError(t, err, "invalid cpf")
 		})
@@ -60,7 +59,7 @@ func TestGivenInvalidCPF_ThenShouldThrowError(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			err := entities.Validate(c.cpf)
+			err := Validate(c.cpf)
 			assert.NotNil(t, err)
 			assert.EqualError(t, err, "invalid cpf")
 		})
