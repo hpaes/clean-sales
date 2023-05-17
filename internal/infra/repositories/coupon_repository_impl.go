@@ -21,7 +21,7 @@ func (c *CouponRepositoryImpl) GetCoupon(code string) (*entities.Coupon, error) 
 	}
 	defer stmt.Close()
 	var coupon entities.Coupon
-	err = stmt.QueryRow(code).Scan(&coupon.Code, &coupon.Discount, &coupon.Expire_at)
+	err = stmt.QueryRow(code).Scan(&coupon.Code, &coupon.Discount, &coupon.ExpireAt)
 	if err != nil {
 		return nil, err
 	}

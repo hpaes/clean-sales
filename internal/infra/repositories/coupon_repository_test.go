@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"clean-sales/internal/infra/repositories"
 	"database/sql"
 	"testing"
 	"time"
@@ -51,7 +50,7 @@ func TestCouponRepositorySuite(t *testing.T) {
 }
 
 func (suite *CouponRepositoryTestSuite) TestGetCoupon() {
-	repo := repositories.NewCouponRepositoryImpl(suite.db)
+	repo := NewCouponRepositoryImpl(suite.db)
 	coupon, err := repo.GetCoupon("CUPOM10")
 	suite.NoError(err)
 
