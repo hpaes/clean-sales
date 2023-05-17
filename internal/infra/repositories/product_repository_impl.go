@@ -3,30 +3,33 @@ package repositories
 import (
 	"clean-sales/internal/entities"
 	"database/sql"
+	"fmt"
 )
 
 type ProductRepositoryImpl struct {
-	db *sql.DB
+	database *sql.DB
 }
 
 func NewProductRepositoryImpl(db *sql.DB) ProductRepository {
-	return &ProductRepositoryImpl{db: db}
+	return &ProductRepositoryImpl{database: db}
 }
 
 // GetProduct implements ProductRepository
 func (p *ProductRepositoryImpl) GetProduct(id string) (*entities.Product, error) {
-	stmt, err := p.db.Prepare("SELECT * FROM products WHERE id_product = ?")
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
+	query := "SELECT * FROM products WHERE id_product = ?"
 
-	var product entities.Product
+	row := p.database.QueryRow(query, id)
 
-	err = stmt.QueryRow(id).Scan(&product.IdProduct, &product.Description, &product.Price, &product.Width, &product.Height, &product.Length, &product.Weight)
+	var productData entities.Product
+	err := row.Scan(&productData.IdProduct, &productData.Description, &productData.Price, &productData.Width, &productData.Height, &productData.Length, &productData.Weight)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to scan product data: %w", err)
 	}
 
-	return &product, nil
+	product, err := entities.NewProduct(productData.IdProduct, productData.Description, productData.Price, productData.Width, productData.Height, productData.Length, productData.Weight)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create product: %w", err)
+	}
+
+	return product, nil
 }

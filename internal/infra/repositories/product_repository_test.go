@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"clean-sales/internal/infra/repositories"
 	"database/sql"
 	"testing"
 
@@ -42,7 +41,7 @@ func TestProductRepositorySuite(t *testing.T) {
 }
 
 func (suite *ProductRepositoryTestSuite) TestGetProduct() {
-	repo := repositories.NewProductRepositoryImpl(suite.db)
+	repo := NewProductRepositoryImpl(suite.db)
 	product, err := repo.GetProduct("1")
 	suite.NoError(err)
 
