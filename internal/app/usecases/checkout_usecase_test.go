@@ -28,8 +28,9 @@ func (suite *CheckoutUseCaseTestSuite) SetupSuite() {
 
 	couponRepository := repositories.NewCouponRepositoryImpl(db)
 	productRepository := repositories.NewProductRepositoryImpl(db)
+	orderRepository := repositories.NewOrderRepositoryImpl(db)
 
-	suite.checkoutUseCase = NewCheckoutUseCaseImpl(productRepository, couponRepository)
+	suite.checkoutUseCase = NewCheckoutUseCaseImpl(productRepository, couponRepository, orderRepository)
 }
 
 func TestCheckoutSuite(t *testing.T) {
@@ -41,9 +42,8 @@ func (suite *CheckoutUseCaseTestSuite) TearDown() {
 }
 
 func (suite *CheckoutUseCaseTestSuite) TestGivenInvalidCPF_ThenShouldNotCreateOrder() {
-
 	output, err := suite.checkoutUseCase.Execute(&testfixture.InvalidInput)
-	assert.EqualError(suite.T(), err, "invalid cpf")
+	assert.EqualError(suite.T(), err, "could not create order: invalid cpf")
 	assert.Nil(suite.T(), output)
 }
 
@@ -51,6 +51,7 @@ func (suite *CheckoutUseCaseTestSuite) TestGivenValidCPF_ThenShouldCreateOrder()
 	output, err := suite.checkoutUseCase.Execute(&testfixture.ValidInput)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 6030.00, output.Total)
+
 }
 
 func (suite *CheckoutUseCaseTestSuite) TestGivenValidCPFAndCoupon_ThenShouldCreateOrder() {
@@ -61,13 +62,13 @@ func (suite *CheckoutUseCaseTestSuite) TestGivenValidCPFAndCoupon_ThenShouldCrea
 
 func (suite *CheckoutUseCaseTestSuite) TestGivenDuplicatedItems_ThenShouldNotCreateOrder() {
 	output, err := suite.checkoutUseCase.Execute(&testfixture.DuplicatedItem)
-	assert.EqualError(suite.T(), err, "duplicated product")
+	assert.EqualError(suite.T(), err, "could not create order: duplicated item")
 	assert.Nil(suite.T(), output)
 }
 
 func (suite *CheckoutUseCaseTestSuite) TestGivenNegativeItemQuantity_ThenShouldNotCreateOrder() {
 	output, err := suite.checkoutUseCase.Execute(&testfixture.NegativeItemQuantity)
-	assert.EqualError(suite.T(), err, "invalid quantity")
+	assert.EqualError(suite.T(), err, "could not create order: invalid item quantity")
 	assert.Nil(suite.T(), output)
 }
 
