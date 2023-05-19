@@ -1,9 +1,9 @@
 package repositories
 
 import (
+	testfixture "clean-sales/testFixture"
 	"database/sql"
 	"testing"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/suite"
@@ -20,21 +20,7 @@ func (suite *CouponRepositoryTestSuite) SetupTest() {
 		suite.T().Fatal(err)
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS coupons (code text PRIMARY KEY NOT NULL, discount DECIMAL(10,2), expire_at text);")
-	if err != nil {
-		suite.T().Fatal(err)
-	}
-
-	validDate := time.Now().AddDate(1, 0, 0).Format("2006-01-02")
-	invalidDate := time.Now().AddDate(-1, 0, 0).Format("2006-01-02")
-
-	_, err = db.Exec("INSERT INTO coupons (code, discount, expire_at) VALUES ('CUPOM10',10.00, '" + validDate + "');")
-	if err != nil {
-		suite.T().Fatal(err)
-	}
-
-	_, err = db.Exec("INSERT INTO coupons (code, discount, expire_at) VALUES ('EXPIRED',10.00, '" + invalidDate + "');")
-	if err != nil {
+	if err := testfixture.PrepDb(db); err != nil {
 		suite.T().Fatal(err)
 	}
 
