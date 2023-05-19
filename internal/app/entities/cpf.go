@@ -18,23 +18,28 @@ var (
 func NewCPF(cpf string) (*CPF, error) {
 	c := &CPF{Value: cpf}
 
+	isValid := Validate(cpf)
+	if !isValid {
+		return nil, errors.New("invalid cpf")
+	}
+
 	return c, nil
 }
 
-func Validate(cpf string) error {
+func Validate(cpf string) bool {
 	if len(cpf) == 0 {
-		return errors.New("CPF is required")
+		return false
 	}
 
 	cleanCPF := regexp.MustCompile(`\D+`).ReplaceAllString(cpf, "")
 	cpfSlice := convertCPFToIntSlice(cleanCPF)
 
 	if !isValidLength(cleanCPF) {
-		return errors.New("invalid cpf")
+		return false
 	}
 
 	if areDigitsEqual(cleanCPF) {
-		return errors.New("invalid cpf")
+		return false
 	}
 
 	dg1 := calculateDigit(cpfSlice[:9], DIGIT_1_FACTOR)
@@ -45,9 +50,9 @@ func Validate(cpf string) error {
 	calculatedCheckDigit := strconv.Itoa(dg1) + strconv.Itoa(dg2)
 
 	if checkDigitString != calculatedCheckDigit {
-		return errors.New("invalid cpf")
+		return false
 	}
-	return nil
+	return true
 }
 
 func calculateDigit(cpf []int, factor int) int {

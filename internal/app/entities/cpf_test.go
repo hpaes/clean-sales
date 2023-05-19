@@ -39,8 +39,9 @@ func TestGivenCPFWithAllDigitsEqual_ThenShouldThrowError(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			err := Validate(c.cpf)
+			cpf, err := NewCPF(c.cpf)
 			assert.NotNil(t, err)
+			assert.Nil(t, cpf)
 			assert.EqualError(t, err, "invalid cpf")
 		})
 	}
@@ -59,8 +60,9 @@ func TestGivenInvalidCPF_ThenShouldThrowError(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			err := Validate(c.cpf)
+			cpf, err := NewCPF(c.cpf)
 			assert.NotNil(t, err)
+			assert.Nil(t, cpf)
 			assert.EqualError(t, err, "invalid cpf")
 		})
 	}

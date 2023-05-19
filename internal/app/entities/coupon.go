@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 type Coupon struct {
 	Code     string
@@ -17,11 +20,12 @@ func NewCoupon(code string, discount float64, expire_at string) *Coupon {
 }
 
 func (c *Coupon) IsValid() bool {
-	expireAt, err := time.Parse(time.RFC3339, c.ExpireAt)
+	expireAt, err := time.Parse("2006-01-02", c.ExpireAt)
 	if err != nil {
 		return true
 	}
 
+	log.Println(time.Now().String())
 	return time.Now().After(expireAt)
 }
 
