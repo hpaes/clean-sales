@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"clean-sales/internal/dtos"
+	"clean-sales/internal/app/dtos"
 	testfixture "clean-sales/testFixture"
 	"encoding/json"
 	"io"

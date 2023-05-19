@@ -1,9 +1,9 @@
 package main
 
 import (
-	"clean-sales/internal/dtos"
+	"clean-sales/internal/app/dtos"
+	"clean-sales/internal/app/usecases"
 	"clean-sales/internal/infra/repositories"
-	"clean-sales/internal/infra/usecases"
 	testfixture "clean-sales/testFixture"
 	"database/sql"
 	"encoding/json"
@@ -29,8 +29,9 @@ func main() {
 
 	productRepository := repositories.NewProductRepositoryImpl(db)
 	couponRepository := repositories.NewCouponRepositoryImpl(db)
+	orderRepository := repositories.NewOrderRepositoryImpl(db)
 
-	checkoutUseCase := usecases.NewCheckoutUseCaseImpl(productRepository, couponRepository)
+	checkoutUseCase := usecases.NewCheckoutUseCaseImpl(productRepository, couponRepository, orderRepository)
 
 	r.Use((middleware.Logger))
 
