@@ -2,7 +2,6 @@ package testfixture
 
 import (
 	"database/sql"
-	"time"
 )
 
 func PrepDb(db *sql.DB) error {
@@ -16,15 +15,15 @@ func PrepDb(db *sql.DB) error {
 		return err
 	}
 
-	// _, err = db.Exec("CREATE TABLE IF NOT EXISTS orders (id_order text PRIMARY KEY NOT NULL,cpf text, code text, total DECIMAL(10,2));")
-	// if err != nil {
-	// 	return err
-	// }
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS orders (id_order text PRIMARY KEY NOT NULL,cpf text, code text, total DECIMAL(10,2), freight DECIMAL(10,2));")
+	if err != nil {
+		return err
+	}
 
-	// _, err = db.Exec("CREATE TABLE IF NOT EXISTS items (id_order text, id_product text, price DECIMAL(10,2), quantity integer, PRIMARY KEY (id_order, id_product), FOREIGN KEY (id_order) REFERENCES orders(id_order), FOREIGN KEY (id_product) REFERENCES product(id_product));")
-	// if err != nil {
-	// 	return err
-	// }
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS items (id_order text, id_product text, price DECIMAL(10,2), quantity integer, PRIMARY KEY (id_order, id_product), FOREIGN KEY (id_order) REFERENCES orders(id_order), FOREIGN KEY (id_product) REFERENCES product(id_product));")
+	if err != nil {
+		return err
+	}
 
 	_, err = db.Exec("INSERT INTO products (id_product, description, price, width, height, length, weight) VALUES (1, 'A', 1000, 100, 30, 10, 3);")
 	if err != nil {
@@ -47,15 +46,17 @@ func PrepDb(db *sql.DB) error {
 		return err
 	}
 
-	validDate := time.Now().AddDate(1, 0, 0).Format("2006-01-02")
-	invalidDate := time.Now().AddDate(-1, 0, 0).Format("2006-01-02")
-
-	_, err = db.Exec("INSERT INTO coupons (code, discount, expire_at) VALUES ('CUPOM10',10.00, '" + validDate + "');")
+	_, err = db.Exec("INSERT INTO orders (id_order, cpf, code, total, freight) VALUES ('" + ValidOrderId + "', '" + ValidCPF + "', '" + ValidSequence + "', 6030.00, 260.00);")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("INSERT INTO coupons (code, discount, expire_at) VALUES ('EXPIRED',10.00, '" + invalidDate + "');")
+	_, err = db.Exec("INSERT INTO coupons (code, discount, expire_at) VALUES ('CUPOM10',10.00, '" + ValidDate + "');")
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("INSERT INTO coupons (code, discount, expire_at) VALUES ('EXPIRED',10.00, '" + ExpiredDate + "');")
 	if err != nil {
 		return err
 	}

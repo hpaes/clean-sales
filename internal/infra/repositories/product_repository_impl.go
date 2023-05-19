@@ -1,10 +1,14 @@
 package repositories
 
 import (
-	"clean-sales/internal/entities"
+	"clean-sales/internal/app/entities"
 	"database/sql"
 	"fmt"
 )
+
+type ProductRepository interface {
+	GetProduct(id string) (*entities.Product, error)
+}
 
 type ProductRepositoryImpl struct {
 	database *sql.DB

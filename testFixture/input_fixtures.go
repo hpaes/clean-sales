@@ -1,13 +1,16 @@
 package testfixture
 
 import (
-	"clean-sales/internal/dtos"
+	"clean-sales/internal/app/dtos"
+	"fmt"
+	"strconv"
 	"time"
 )
 
 var (
 	ValidInput = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
+		IdOrder: ValidOrderId,
+		Cpf:     "029.496.970-54",
 		Items: []dtos.Item{
 			{IdProduct: "1", Quantity: 1},
 			{IdProduct: "2", Quantity: 1},
@@ -16,7 +19,8 @@ var (
 	}
 
 	ValidInputWithFreight = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
+		IdOrder: ValidOrderId,
+		Cpf:     "029.496.970-54",
 		Items: []dtos.Item{
 			{IdProduct: "1", Quantity: 1},
 			{IdProduct: "2", Quantity: 1},
@@ -27,7 +31,8 @@ var (
 	}
 
 	ValidCouponInput = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
+		IdOrder: ValidOrderId,
+		Cpf:     "029.496.970-54",
 		Items: []dtos.Item{
 			{IdProduct: "1", Quantity: 1},
 			{IdProduct: "2", Quantity: 1},
@@ -37,7 +42,8 @@ var (
 	}
 
 	NegativeItemQuantity = dtos.CheckoutInputDto{
-		Cpf: "029.496.970-54",
+		IdOrder: ValidOrderId,
+		Cpf:     "029.496.970-54",
 		Items: []dtos.Item{
 			{IdProduct: "1", Quantity: -1},
 			{IdProduct: "2", Quantity: 1},
@@ -64,6 +70,11 @@ var (
 		Cpf:   "029.496.970-53",
 		Items: []dtos.Item{},
 	}
-
-	ValidDate = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
+	ValidOrderId    = "7d22ab11-30a1-4d3c-8cf4-e70c1c9"
+	ValidDate       = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+	ExpiredDate     = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	ValidCPF        = "029.496.970-54"
+	InvalidCPF      = "111.111.111-11"
+	ValidSequence   = fmt.Sprintf("%d%s", time.Now().Year(), fmt.Sprintf("%08s", strconv.Itoa(1)))
+	InvalidSequence = fmt.Sprintf("%d%s", time.Now().Year(), fmt.Sprintf("%08s", strconv.Itoa(0)))
 )
